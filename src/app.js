@@ -1,56 +1,140 @@
 class Randomizer extends React.Component {
+    constructor(props) {
+      super(props);
+      this.handleDeleteOptions = this.handleDeleteOptions.bind(this);
+      this.handlePick = this.handlePick.bind(this);
+      this.handleAddOption = this.handleAddOption.bind(this);
+      this.state = {
+        options: []
+      };
+    }
+    handleDeleteOptions() {
+      this.setState(() => {
+        return {
+          options: []
+        };
+      });
+    }
+    handlePick() {
+      const randomNum = Math.floor(Math.random() * this.state.options.length);
+      const option = this.state.options[randomNum];
+      alert(option);
+    }
+    handleAddOption(option) {
+      if (!option) {
+        return 'Enter valid value to add item';
+      } else if (this.state.options.indexOf(option) > -1) {
+        return 'This option already exists';
+      }
+  
+      this.setState((prevState) => {
+        return {
+          options: prevState.options.concat(option)
+        };
+      });
+    }
     render() {
-        return (
-            <div>
-                <h1>Randomizer</h1>
-                <Header />
-                <Action />
-                <Options/>
-                <AddOption/>
-            </div>
-        );
+      const title = 'Randomizer';
+      const subtitle = 'Let us randomize what you do';
+  
+      return (
+        <div>
+          <Header title={title} subtitle={subtitle} />
+          <Action
+            hasOptions={this.state.options.length > 0}
+            handlePick={this.handlePick}
+          />
+          <Options
+            options={this.state.options}
+            handleDeleteOptions={this.handleDeleteOptions}
+          />
+          <AddOption
+            handleAddOption={this.handleAddOption}
+          />
+        </div>
+      );
     }
-}
-
-class Header extends React.Component {
-    render(){
-        return <p>Let me make a random decision for you</p>
-    }
-}
-
-class Action extends React.Component {
+  }
+  
+  class Header extends React.Component {
     render() {
-        return (
-            <div>
-                <button>Select Random</button>
-            </div>
-        );
+      return (
+        <div>
+          <h1>{this.props.title}</h1>
+          <h2>{this.props.subtitle}</h2>
+        </div>
+      );
     }
-}
-
-class AddOption extends React.Component {
+  }
+  
+  class Action extends React.Component {
     render() {
-        return (
-            <div>
-                <form>
-                    <input type="text" placeholder="Enter Your Option"></input>
-                    &nbsp;<button>Add Option</button>
-                </form>
-            </div>
-        );
+      return (
+        <div>
+          <button
+            onClick={this.props.handlePick}
+            disabled={!this.props.hasOptions}
+          >
+            What should I do?
+          </button>
+        </div>
+      );
     }
-}
-
-class Options extends React.Component {
+  }
+  
+  class Options extends React.Component {
     render() {
-        return (
-            <div>
-                <h3>These are your options</h3>
-            </div>
-        );
+      return (
+        <div>
+        <br/><button onClick={this.props.handleDeleteOptions}>Remove All</button>
+          {
+            this.props.options.map((option) => <Option key={option} optionText={option} />)
+          }
+        </div>
+      );
     }
-}
-
-
-
-ReactDOM.render(<Randomizer/>, document.getElementById('app'));
+  }
+  
+  class Option extends React.Component {
+    render() {
+      return (
+        <div>
+          {this.props.optionText}
+        </div>
+      );
+    }
+  }
+  
+  class AddOption extends React.Component {
+    constructor(props) {
+      super(props);
+      this.handleAddOption = this.handleAddOption.bind(this);
+      this.state = {
+        error: undefined
+      };
+    }
+    handleAddOption(e) {
+      e.preventDefault();
+  
+      const option = e.target.elements.option.value.trim();
+      const error = this.props.handleAddOption(option);
+  
+      this.setState(() => {
+        return { error };
+      });
+    }
+    render() {
+      return (
+        <div>
+          {this.state.error && <p>{this.state.error}</p>}
+          <form onSubmit={this.handleAddOption}><br/>
+            <input type="text" name="option" placeholder= "Enter your option"/>
+            &nbsp;<button>Add Option</button>
+          </form>
+        </div>
+      );
+    }
+  }
+  
+  ReactDOM.render(<Randomizer />, document.getElementById('app'));
+  
